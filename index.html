@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>急性缺血性腦中風靜脈血栓溶解治療 禁忌症交叉比對工具</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --insert-blue: #0056b3;
+            --nhi-purple: #6f42c1;
+            --guide-teal: #087f6d;
+            --ci-red: #d90429;
+            --rc-yellow: #ffc300;
+            --consider-green: #2ecc71;
+            --notebook-blue: #4285f4; 
+            --bg-gray: #f2f4f7;
+        }
+        body { font-family: -apple-system, "Noto Sans TC", "Microsoft JhengHei", sans-serif; margin: 0; background: var(--bg-gray); color: #333; display: flex; flex-direction: column; min-height: 100vh; }
+
+        header { background: var(--primary); color: white; padding: 10px; position: sticky; top: 0; z-index: 1000; display: flex; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .menu-toggle { background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 10px; margin-right: 10px; }
+        .header-title { font-size: 0.9em; font-weight: bold; line-height: 1.3; }
+
+        .sidebar { width: 280px; background: var(--primary); color: white; position: fixed; top: 0; left: -280px; height: 100%; transition: 0.3s; overflow-y: auto; z-index: 2000; box-shadow: 2px 0 10px rgba(0,0,0,0.3); }
+        .sidebar.active { left: 0; }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
+        .sidebar-overlay.active { display: block; }
+        .sidebar-header { padding: 20px; background: #1a252f; text-align: center; border-bottom: 1px solid #34495e; }
+        .ai-link-container { padding: 10px; }
+        .ai-btn { display: block; width: 100%; background: var(--notebook-blue); color: white; text-decoration: none; padding: 12px; border-radius: 8px; font-weight: bold; font-size: 0.9em; text-align: center; border: 1px solid #5da5ff; box-sizing: border-box; }
+        .search-container { padding: 10px; position: sticky; top: 0; background: var(--primary); }
+        .search-input { width: 100%; padding: 12px 15px; border-radius: 25px; border: none; box-sizing: border-box; font-size: 16px; }
+
+        .nav-group { padding-bottom: 10px; }
+        .nav-title { padding: 15px 20px 5px; font-size: 0.8em; color: #95a5a6; font-weight: bold; }
+        .nav-btn { width: 100%; border: none; background: none; color: #ecf0f1; padding: 15px 25px; text-align: left; cursor: pointer; font-size: 0.95em; border-bottom: 1px solid #34495e; display: flex; flex-direction: column; }
+        .nav-btn small { font-size: 0.75em; color: #95a5a6; margin-top: 2px; }
+        .nav-btn.active { background: #3e5871; border-left: 5px solid #3498db; }
+        .nav-btn.hidden { display: none; }
+
+        .main-content { padding: 15px; max-width: 800px; margin: 0 auto; flex: 1; width: 100%; box-sizing: border-box; }
+        .scenario-header h1 { font-size: 1.4em; color: var(--primary); margin: 10px 0; line-height: 1.4; border-bottom: 2px solid #ddd; padding-bottom: 10px; }
+        
+        .category-container { display: flex; flex-direction: column; gap: 20px; }
+        .cat-box { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: 1px solid #e0e0e0; overflow: hidden; }
+        .cat-header { padding: 12px 15px; color: white; font-weight: bold; font-size: 1em; }
+        .header-insert { background: var(--insert-blue); }
+        .header-nhi { background: var(--nhi-purple); }
+        .header-guide { background: var(--guide-teal); }
+        
+        .cat-body { padding: 15px; }
+        .desc-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; gap: 10px; }
+        .desc-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+        .text-content { flex: 1; font-size: 1.05em; line-height: 1.6; color: #2c3e50; }
+        .supplement-note { display: block; font-size: 0.85em; color: #666; margin-top: 6px; padding: 5px 10px; border-left: 3px solid #ddd; background: #fafafa; }
+
+        .status-tag { font-size: 0.8em; padding: 4px 8px; border-radius: 4px; font-weight: bold; white-space: nowrap; margin-top: 2px; }
+        .tag-ci { background: var(--ci-red); color: white; }
+        .tag-rc { background: var(--rc-yellow); color: black; border: 1px solid #d4a017; }
+        .tag-consider { background: var(--consider-green); color: white; }
+
+        .text-link { display: inline-block; margin-top: 8px; padding: 4px 10px; background: #f8f9fa; color: #0056b3; text-decoration: none; border-radius: 4px; border: 1px solid #0056b3; font-weight: bold; font-size: 0.85em; }
+
+        footer { background: #eee; padding: 25px 15px; font-size: 0.85em; color: #666; text-align: center; border-top: 1px solid #ddd; margin-top: 40px; }
+        .footer-author { font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        .disclaimer { max-width: 600px; margin: 10px auto 0; font-size: 0.9em; line-height: 1.5; }
+
+        .welcome-msg { text-align: center; margin-top: 50px; color: #7f8c8d; padding: 20px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+    <div class="header-title">
+        急性缺血性腦中風靜脈血栓溶解治療<br>
+        禁忌症交叉比對工具
+    </div>
+</header>
+
+<div class="sidebar-overlay" id="overlay" onclick="toggleMenu()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">選單</div>
+    <div class="ai-link-container">
+        <a href="https://notebooklm.google.com/notebook/50ee7a5c-1b76-48c6-84bf-ec366c55f420" target="_blank" class="ai-btn">NotebookLM AI 輔助</a>
+    </div>
+    <div class="search-container">
+        <input type="text" id="scenarioSearch" class="search-input" placeholder="🔍 快速查找臨床情境..." onkeyup="filterScenarios()">
+    </div>
+    <div class="nav-scroll" id="navArea">
+        <div class="nav-group">
+            <div class="nav-title">1. 時間窗、嚴重程度與年齡</div>
+            <button class="nav-btn" onclick="updateView('time')">超過 4.5h / 不明時間 <small>(time window)</small></button>
+            <button class="nav-btn" onclick="updateView('minor')">輕微中風 / 症狀改善 <small>(low NIHSS)</small></button>
+            <button class="nav-btn" onclick="updateView('severe_stroke')">臨床 / 影像嚴重中風 <small>(high NIHSS/large core)</small></button>
+            <button class="nav-btn" onclick="updateView('age')">高齡 / 青少年 <small>(old/young age)</small></button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-title">2. 生理指標與檢驗</div>
+            <button class="nav-btn" onclick="updateView('bp')">血壓過高 (>185/110) <small>(BP/HTN)</small></button>
+            <button class="nav-btn" onclick="updateView('glucose')">血糖異常 (<50 或 >400) <small>(glucose/hypoglycemia/hyperglycemia)</small></button>
+            <button class="nav-btn" onclick="updateView('platelets')">血小板低下 <small>(PLT/thrombocytopenia)</small></button>
+            <button class="nav-btn" onclick="updateView('coag')">凝血指標異常 <small>(INR/PT/PTT)</small></button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-title">3. 手術、創傷與懷孕</div>
+            <button class="nav-btn" onclick="updateView('surgery_major')">重大手術 / 嚴重創傷 <small>(OP/surgery/trauma)</small></button>
+            <button class="nav-btn" onclick="updateView('surgery_cns')">顱內脊柱手術 / 腦外傷 <small>(neurosurgery/TBI)</small></button>
+            <button class="nav-btn" onclick="updateView('birth')">懷孕 / 分娩 / 產後 <small>(pregnancy/delivery/postpartum)</small></button>
+            <button class="nav-btn" onclick="updateView('puncture')">血管 / 腰椎穿刺 <small>(arterial/dural puncture)</small></button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-title">4. 病史與特殊併發症</div>
+            <button class="nav-btn" onclick="updateView('prior_stroke')">缺血性中風 / 糖尿病史 <small>(CVA/ischemic stroke/DM)</small></button>
+            <button class="nav-btn" onclick="updateView('prior_ich')">顱內出血史 <small>(ICH/SAH)</small></button>
+            <button class="nav-btn" onclick="updateView('prior_mi')">心肌梗塞 <small>(STEMI)</small></button>
+            <button class="nav-btn" onclick="updateView('gi_bleed')">消化 / 泌尿道出血 <small>(GIB/hematuria)</small></button>
+            <button class="nav-btn" onclick="updateView('seizure')">中風發作時併發癲癇 <small>(seizure)</small></button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-title">5. 腫瘤、血管與其他器官</div>
+            <button class="nav-btn" onclick="updateView('tumor')">腫瘤 / 癌症 <small>(tumor/neoplasm/cancer)</small></button>
+            <button class="nav-btn" onclick="updateView('aneurysm')">動脈瘤 / 動靜脈畸形 <small>(aneurysm/AVM/AVF)</small></button>
+            <button class="nav-btn" onclick="updateView('dissection')">動脈剝離 <small>(dissection)</small></button>
+            <button class="nav-btn" onclick="updateView('retinopathy')">出血性視網膜病變 <small>(retinopathy)</small></button>
+            <button class="nav-btn" onclick="updateView('endocarditis')">心內膜 / 心包炎 <small>(IE/endocarditis/pericarditis)</small></button>
+            <button class="nav-btn" onclick="updateView('brain_special')">小血管病變 <small>(Moyamoya/CAA/ARIA)</small></button>
+            <button class="nav-btn" onclick="updateView('organs')">肝病 / 胰臟炎 / 洗腎 <small>(cirrhosis/hepatitis/pancreatitis/hemodialysis)</small></button>
+        </div>
+        <div class="nav-group">
+            <div class="nav-title">6. 藥物使用</div>
+            <button class="nav-btn" onclick="updateView('anticoagulants')">抗凝血劑使用 <small>(VKA/warfarin/NOAC/DOAC)</small></button>
+            <button class="nav-btn" onclick="updateView('antiplatelet')">抗血小板藥物使用 <small>(ASA/aspirin/antiplatelet)</small></button>
+            <button class="nav-btn" onclick="updateView('aat')">類澱粉蛋白抗體使用 <small>(AAT/lecanemab/donanemab)</small></button>
+        </div>
+    </div>
+</div>
+
+<div class="main-content" id="mainDisplay">
+    <div class="welcome-msg">
+        <h2>← 請開啟選單查找臨床情境</h2>
+        <p>系統將即時比對仿單、健保與 TSS/AHA 指引規範。</p>
+    </div>
+</div>
+
+<footer>
+    <div class="footer-author">作者：吳柏陞 Brian Po-Sheng Wu | Email: 3243atog@gmail.com</div>
+    <div>最後更新日期：June 8, 2026</div>
+    <div class="disclaimer">
+        本工具僅供專業醫療人員參考，臨床決策應結合實際臨床狀況進行完整評估。
+    </div>
+</footer>
+
+<script>
+const DRIVE_LINKS = {
+    insert: "https://drive.google.com/file/d/1TeWwtfSL2e_HqU9V1jBLtAD7FuLjF4Fb/view?usp=drive_link",
+    nhi: "https://drive.google.com/file/d/1STqXlv3YUUd7BNtCl9dyRNz_qKMrXWlF/view?usp=drive_link",
+    tw_guide: "https://drive.google.com/file/d/1f4Xejpy8va2I2QLJ-teTTx45AraNSzw5/view?usp=sharing",
+    us_guide: "https://drive.google.com/file/d/14yffsfYWp8y2_45a7IjeGQZ3saAn5tnO/view?usp=drive_link"
+};
+
+const scenarios = {
+    time: {
+        name: "發病時間 > 4.5 小時 / 不明時間",
+        insert: [{ s: "CI", t: "輸注本藥前，缺血性發作的時間已超過4.5小時或症狀發作時間不明。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "輸注本藥前，缺血性發作的時間已超過 4.5 小時或症狀發作時間不明。", l: DRIVE_LINKS.nhi }],
+        guide: [
+            { src: "TSS 2025", s: "RC", l: DRIVE_LINKS.tw_guide, t: "發病或最後正常時間4.5–9小時並符合腦部影像學篩選條件（符合EXTEND試驗條件）。" },
+            { src: "TSS 2025", s: "RC", l: DRIVE_LINKS.tw_guide, t: "睡醒發現中風符合 WAKE-UP 試驗 MRI 篩選條件。" },
+            { src: "AHA/ASA 2026", s: "RC", l: DRIVE_LINKS.us_guide, t: "Extended Time Windows for Intravenous Thrombolysis (unknown onset or 4.5–9 hours)." }
+        ]
+    },
+    minor: {
+        name: "輕微中風 / 症狀改善",
+        insert: [{ s: "CI", t: "輸注本藥前，急性缺血性中風的症狀已迅速改善或症狀輕微。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "輸注本藥前，急性缺血性腦中風的症狀已迅速改善或症狀輕微。（例如 NIHSS < 4分）", l: DRIVE_LINKS.nhi }],
+        guide: [
+            { src: "TSS 2025", s: "RC", l: DRIVE_LINKS.tw_guide, t: "輕微（NIHSS≦5）且合併失能症狀。" },
+            { src: "AHA/ASA 2026", s: "Consider", l: DRIVE_LINKS.us_guide, t: "Uncertainty of stroke diagnosis / stroke mimics." }
+        ]
+    },
+    severe_stroke: {
+        name: "臨床 / 影像嚴重中風",
+        insert: [{ s: "CI", t: "臨床(例如NIHSS＞25)及∕或適當之影像術評估為嚴重之中風。", l: DRIVE_LINKS.insert }, { s: "RC", t: "CT顯示早期重大梗塞徴兆 (大量水腫/中線偏移)。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "臨床(NIHSS > 25分)或影像(CT > 1/3 MCA)嚴重中風。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "影像嚴重中風 (CT > 1/3 MCA)。" }, { src: "TSS 2025", s: "RC", l: DRIVE_LINKS.tw_guide, t: "臨床嚴重(NIHSS > 25)但影像無大片低密度變化者。" }, { src: "AHA/ASA 2026", s: "CI", l: DRIVE_LINKS.us_guide, t: "CT with extensive hypodensity." }]
+    },
+    age: {
+        name: "高齡 / 青少年",
+        insert: [{ s: "CI", t: "兒童及未滿十八歲之青少年。", l: DRIVE_LINKS.insert }, { s: "RC", t: "80歲以上之病人，出血風險可能升高。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "年齡需在 18 歲以上。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "AHA/ASA 2026", s: "Consider", l: DRIVE_LINKS.us_guide, t: "Advanced Age (individualized assessment)." }]
+    },
+    bp: {
+        name: "血壓過高",
+        insert: [{ s: "CI", t: "嚴重且未被控制的動脈高血壓。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "SBP > 185 或 DBP > 110 且無法降壓至標準以下。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "經矯正後血壓持續維持 > 185/110 mmHg。" }, { src: "AHA/ASA 2026", s: "CI", l: DRIVE_LINKS.us_guide, t: "Blood pressure > 185/110 mmHg and remains above limits after treatment." }]
+    },
+    glucose: {
+        name: "血糖異常",
+        insert: [{ s: "CI", t: "持續維持血糖 < 50 mg/dL 或 > 400 mg/dL。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "血糖 < 50 或 > 400 mg/dL。", l: DRIVE_LINKS.nhi }],
+        guide: [
+            { src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "經矯正後血糖持續 < 50 或 > 400 mg/dL。" },
+            { src: "TSS 2025", s: "RC", l: DRIVE_LINKS.tw_guide, t: "校正後仍存在神經學缺損，高度懷疑非 mimics 者。" }
+        ]
+    },
+    platelets: {
+        name: "血小板低下",
+        insert: [{ s: "CI", t: "血小板少於 100,000/mm3。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "血小板 < 100,000/mm3。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "血小板數 < 100,000/mm3。" }, { src: "AHA/ASA 2026", s: "CI", l: DRIVE_LINKS.us_guide, t: "Severe coagulopathy or thrombocytopenia." }]
+    },
+    coag: {
+        name: "凝血指標異常",
+        insert: [{ 
+            s: "CI", 
+            t: "INR > 1.7 或 PT > 15秒 或 aPTT 過高。", 
+            n: "對最近未曾使用抗凝血劑或heparin治療的病人，可在未獲得凝血參數前先開始ACTILYSE的治療，然而如治療前之International Normalized Ratio (INR)>1.7或prothrombin time (PT)>15秒或aPTT過高，應立即停止ACTILYSE之輸注。",
+            l: DRIVE_LINKS.insert 
+        }],
+        nhi: [{ s: "CI", t: "使用 heparin 且 aPTT 值過高。口服抗凝血劑 warfarin 且 INR > 1.3。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "服用 Warfarin 且 INR ＞ 1.7；aPTT > 40 sec。" }, { src: "AHA/ASA 2026", s: "CI", l: DRIVE_LINKS.us_guide, t: "Severe coagulopathy (INR > 1.7, PT > 15s)." }]
+    },
+    surgery_major: {
+        name: "重大手術 / 嚴重創傷",
+        insert: [{ s: "CI", t: "過去 10 天內重大手術 or 嚴重創傷。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "過去 10 天內重大手術 or 心肺復甦術(>2min)。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "近 14 日內曾接受重大手術。" }, { src: "AHA/ASA 2026", s: "RC", l: DRIVE_LINKS.us_guide, t: "Recent major non-CNS trauma (between 14 days and 3 months); Recent major non-CNS surgery within 10 days." }]
+    },
+    surgery_cns: {
+        name: "顱內脊柱手術 / 腦外傷",
+        insert: [{ s: "CI", t: "中樞神經系統損害病史。最近三個月內嚴重頭部創傷。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "最近 3 個月內嚴重性頭部創傷。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "三個月內顱內或脊柱手術、嚴重性頭部創傷。" }, { src: "AHA/ASA 2026", s: "CI", l: DRIVE_LINKS.us_guide, t: "Moderate to severe traumatic brain injury <14 days; Neurosurgery <14 days." }, { src: "AHA/ASA 2026", s: "RC", l: DRIVE_LINKS.us_guide, t: "Moderate to severe TBI >=14 days to 3 months; Neurosurgery >=14 days to 3 months." }]
+    },
+    birth: {
+        name: "懷孕 / 分娩 / 產後",
+        insert: [{ s: "CI", t: "過去 10 天內分娩。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "分娩列為排除條件。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "AHA/ASA 2026", s: "RC", l: DRIVE_LINKS.us_guide, t: "Pregnancy and post-partum period." }]
+    },
+    puncture: {
+        name: "血管 / 腰椎穿刺",
+        insert: [{ s: "CI", t: "過去10天內分娩、近期曾對無法壓制之部位施行血管穿刺。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "過去10 天內對無法壓制部位施行血管穿刺。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "AHA/ASA 2026", s: "RC", l: DRIVE_LINKS.us_guide, t: "Dural puncture within 7 days; Arterial puncture within 7 days." }, { src: "AHA/ASA 2026", s: "Consider", l: DRIVE_LINKS.us_guide, t: "Angiographic procedural stroke." }]
+    },
+    prior_stroke: {
+        name: "缺血性中風 / 糖尿病史",
+        insert: [{ 
+            s: "CI", 
+            t: "最近三個月內有中風病史。", 
+            n: "血栓溶解治療對曾發生中風或未被控制的糖尿病病人，其效益/風險比被認為較差，然而對這些病人仍具正面價值。因中風病史及糖尿病為血栓溶解治療之不良結果預測因子，對於曾發生中風且合併有糖尿病的病人，給予ACTILYSE治療的效益/風險比應該地完整評估。",
+            l: DRIVE_LINKS.insert 
+        }],
+        nhi: [{ s: "CI", t: "3個月內中風病史。過去曾中風且合併糖尿病。", l: DRIVE_LINKS.nhi }],
+        guide: [
+            { src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "一個月內中風病史。" }, 
+            { src: "TSS 2025", s: "RC", l: DRIVE_LINKS.tw_guide, t: "1 到 3 個月內曾發生缺血性中風。" },
+            { src: "AHA/ASA 2026", s: "RC", l: DRIVE_LINKS.us_guide, t: "Ischemic stroke within 3 months." }
+        ]
+    },
+    prior_ich: {
+        name: "顱內出血史",
+        insert: [{ s: "CI", t: "懷疑或經證實之顱內出血或其病史。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "顱內出血病史。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "非創傷性顱內出血病史。" }, { src: "AHA/ASA 2026", s: "CI", l: DRIVE_LINKS.us_guide, t: "CT with hemorrhage." }, { src: "AHA/ASA 2026", s: "RC", l: DRIVE_LINKS.us_guide, t: "Prior ICH." }]
+    },
+    prior_mi: {
+        name: "心肌梗塞",
+        insert: [{ s: "CI", t: "最近心肌梗塞所伴隨的創傷需注意。", l: DRIVE_LINKS.insert }],
+        guide: [{ src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "近 7 日內 STEMI (非發病合併之 MI)。" }, { src: "AHA/ASA 2026", s: "RC", l: DRIVE_LINKS.us_guide, t: "Recent STEMI within 3 months." }, { src: "AHA/ASA 2026", s: "Consider", l: DRIVE_LINKS.us_guide, t: "History of MI." }]
+    },
+    gi_bleed: {
+        name: "消化 / 泌尿道出血",
+        insert: [{ s: "CI", t: "活動性胃腸道潰瘍。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "最近 3 個月曾患胃腸道潰瘍。活動性內出血。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "近 21 日內腸胃道或泌尿道出血。" }, { src: "AHA/ASA 2026", s: "RC", l: DRIVE_LINKS.us_guide, t: "Recent GI/GU bleeding within 21 days." }, { src: "AHA/ASA 2026", s: "Consider", l: DRIVE_LINKS.us_guide, t: "History of GI/GU bleeding." }]
+    },
+    seizure: {
+        name: "中風發作時併發癲癇",
+        insert: [{ 
+            s: "RC", 
+            t: "中風發作時併發癲癇。", 
+            n: "對於中風發作時併發癲癇的病人，亦應謹慎診斷；如癲癇症狀後仍有殘存神經學症狀無法排除中風且非 Todd’s paralysis，應完整評估病人接受ACTILYSE的效益/風險比。",
+            l: DRIVE_LINKS.insert 
+        }],
+        nhi: [{ s: "CI", t: "中風發作時併發癲癇。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "AHA/ASA 2026", s: "Consider", l: DRIVE_LINKS.us_guide, t: "Uncertainty of stroke diagnosis / stroke mimics." }]
+    },
+    tumor: {
+        name: "腫瘤 / 癌症",
+        insert: [{ s: "CI", t: "中樞神經系統損害之病史；易出血之腫瘤。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "顱內腫瘤、動靜脈畸形或血管瘤。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "腦實質腫瘤；腸胃道惡性腫瘤。" }, { src: "TSS 2025", s: "RC", l: DRIVE_LINKS.tw_guide, t: "顱內腦外腫瘤 (extra-axial intracranial neoplasm)；活躍性癌症。" }, { src: "AHA/ASA 2026", s: "CI", l: DRIVE_LINKS.us_guide, t: "Intra-axial neoplasm." }, { src: "AHA/ASA 2026", s: "RC", l: DRIVE_LINKS.us_guide, t: "Systemic active malignancy." }, { src: "AHA/ASA 2026", s: "Consider", l: DRIVE_LINKS.us_guide, t: "Extra-axial intracranial neoplasms." }]
+    },
+    aneurysm: {
+        name: "動脈瘤 / 動靜脈畸形",
+        insert: [{ s: "CI", t: "已知的動脈瘤，及/或靜/動脈畸形。", l: DRIVE_LINKS.insert }, { s: "RC", t: "腦血管無症狀的小血管瘤。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "動靜脈畸形或動脈瘤。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "AHA/ASA 2026", s: "Consider", l: DRIVE_LINKS.us_guide, t: "Unruptured intracranial aneurysm." }]
+    },
+    dissection: {
+        name: "動脈剝離",
+        guide: [{ src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "主動脈弓剝離。" }, { src: "AHA/ASA 2026", s: "CI", l: DRIVE_LINKS.us_guide, t: "Aortic arch dissection." }, { src: "AHA/ASA 2026", s: "RC", l: DRIVE_LINKS.us_guide, t: "Intracranial arterial dissection." }, { src: "AHA/ASA 2026", s: "Consider", l: DRIVE_LINKS.us_guide, t: "Extracranial cervical dissections." }]
+    },
+    retinopathy: {
+        name: "出血性視網膜病變",
+        nhi: [{ s: "CI", t: "出血性視網膜病變（如糖尿病性）。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "TSS 2025", s: "RC", l: DRIVE_LINKS.tw_guide, t: "已知出血性視網膜病變。" }]
+    },
+    endocarditis: {
+        name: "心內膜 / 心包炎",
+        insert: [{ s: "CI", t: "細菌性心內膜炎，心包炎。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "細菌性心內膜炎，心包炎。", l: DRIVE_LINKS.nhi }],
+        guide: [{ src: "AHA/ASA 2026", s: "CI", l: DRIVE_LINKS.us_guide, t: "Infective endocarditis." }, { src: "AHA/ASA 2026", s: "RC", l: DRIVE_LINKS.us_guide, t: "Acute pericarditis." }]
+    },
+    brain_special: {
+        name: "小血管病變",
+        guide: [{ src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "類澱粉血管症(CAA)且發生過症狀性出血或 ARIA。" }, { src: "TSS 2025", s: "RC", l: DRIVE_LINKS.tw_guide, t: "成人毛毛樣血管症；CADASIL；腦部微出血大於10處。" }, { src: "AHA/ASA 2026", s: "CI", l: DRIVE_LINKS.us_guide, t: "Amyloid-related imaging abnormalities (ARIA) 為絕對禁忌。" }, { src: "AHA/ASA 2026", s: "Consider", l: DRIVE_LINKS.us_guide, t: "Moya-Moya." }]
+    },
+    organs: {
+        name: "肝病 / 胰臟炎 / 洗腎",
+        insert: [{ s: "CI", t: "嚴重肝病（肝衰竭、肝硬化、門脈高壓、急性肝炎）。急性胰臟炎。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "嚴重肝病，包括肝衰竭、肝硬化、肝門脈高壓（食道靜脈曲張）及急性肝炎。急性胰臟炎；洗腎患者。", l: DRIVE_LINKS.nhi }],
+        guide: [
+            { src: "TSS 2025", s: "Consider", l: DRIVE_LINKS.tw_guide, t: "洗腎患者無凝血功能異常者可由診治醫師評估個別利益風險後決定。" }
+        ]
+    },
+    anticoagulants: {
+        name: "抗凝血劑使用",
+        insert: [{ s: "CI", t: "有效劑量口服抗凝劑 (INR＞1.3)；48小時內用過 heparin 且 aPTT 過高。", l: DRIVE_LINKS.insert }],
+        nhi: [{ s: "CI", t: "Warfarin (INR > 1.3)；48h 內使用過 heparin 且 aPTT 過高。", l: DRIVE_LINKS.nhi }],
+        guide: [
+            { src: "TSS 2025", s: "CI", l: DRIVE_LINKS.tw_guide, t: "服用 Warfarin 且 INR ＞ 1.7；24h 內使用過 LMWH；或使用 DOAC。" }, 
+            { src: "AHA/ASA 2026", s: "RC", l: DRIVE_LINKS.us_guide, t: "DOAC exposure (< 48 hours)." }
+        ]
+    },
+    antiplatelet: {
+        name: "抗血小板藥物使用",
+        insert: [{ s: "RC", t: "先接受 acetyl salicylic acid (ASA) 治療者。", l: DRIVE_LINKS.insert }],
+        guide: [{ src: "AHA/ASA 2026", s: "Consider", l: DRIVE_LINKS.us_guide, t: "Prior antiplatelet use (benefits likely outweigh risk)." }]
+    },
+    aat: {
+        name: "類澱粉蛋白抗體使用",
+        guide: [
+            { src: "AHA/ASA 2026", s: "CI", l: DRIVE_LINKS.us_guide, t: "Amyloid-related imaging abnormalities (ARIA)." },
+            { src: "TSS 2025", s: "RC", l: DRIVE_LINKS.tw_guide, t: "Lecanemab / Donanemab 使用者需極審慎評估。" }
+        ]
+    }
+};
+
+function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
+
+function updateView(id) {
+    const s = scenarios[id];
+    if (!s) return;
+    const display = document.getElementById('mainDisplay');
+    const generateRows = (items) => {
+        if (!items || items.length === 0) return `<div class="desc-row"><div class="text-content">未具體列入此項規範。</div></div>`;
+        return items.map(item => `
+            <div class="desc-row">
+                <div class="text-content">
+                    ${item.src ? `<b>[${item.src}]</b> ` : ''}${item.t}
+                    ${item.n ? `<span class="supplement-note">${item.n}</span>` : ''}
+                    <br><a href="${item.l}" target="_blank" class="text-link">PDF 連結 🔗</a>
+                </div>
+                <span class="status-tag ${getTagClass(item.s)}">${getTagText(item.s)}</span>
+            </div>
+        `).join('');
+    };
+
+    let html = `
+        <div class="scenario-header"><h1>${s.name.split(' <small>')[0]}</h1></div>
+        <div class="category-container">
+            <div class="cat-box"><div class="cat-header header-insert">(1) 藥品仿單 (Actilyse 2025)</div><div class="cat-body">${generateRows(s.insert)}</div></div>
+            <div class="cat-box"><div class="cat-header header-nhi">(2) 健保給付規定 (NHI 2023)</div><div class="cat-body">${generateRows(s.nhi)}</div></div>
+            <div class="cat-box"><div class="cat-header header-guide">(3) 醫療學術指引 (Guidelines)</div><div class="cat-body">${generateRows(s.guide)}</div></div>
+        </div>
+    `;
+    display.innerHTML = html;
+    if (window.innerWidth < 768) toggleMenu();
+    window.scrollTo(0, 0);
+}
+
+function filterScenarios() {
+    const filter = document.getElementById('scenarioSearch').value.toUpperCase();
+    const btns = document.querySelectorAll('.nav-btn');
+    btns.forEach(btn => {
+        const text = btn.innerText.toUpperCase();
+        btn.classList.toggle('hidden', text.indexOf(filter) === -1);
+    });
+}
+
+function getTagClass(s) { return s === 'CI' ? 'tag-ci' : s === 'RC' ? 'tag-rc' : s === 'Consider' ? 'tag-consider' : 'tag-none'; }
+function getTagText(s) { return s === 'CI' ? '絕對禁忌' : s === 'RC' ? '相對禁忌' : s === 'Consider' ? '建議考慮' : '未條列'; }
+</script>
+
+</body>
+</html>
